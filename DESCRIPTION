@@ -1,8 +1,8 @@
 Package: DEScan2
 Type: Package
 Title: Differential Enrichment Scan 2
-Version: 1.29.1
-Date: 2025-06-24
+Version: 1.29.2
+Date: 2025-07-31
 Authors@R: c(
     person("Dario", "Righelli", role=c("aut", "cre"), 
             email="dario.righelli@gmail.com"),
@@ -30,6 +30,7 @@ Imports:
     ChIPpeakAnno,
     data.table,
     DelayedArray,
+    Seqinfo,
     GenomeInfoDb,
     GenomicAlignments,
     glue,

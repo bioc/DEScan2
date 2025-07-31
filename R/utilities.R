@@ -7,7 +7,7 @@
 #' @export
 #' @importFrom GenomicRanges granges
 #' @importFrom GenomicAlignments readGAlignments
-#' @importFrom GenomeInfoDb seqlevelsStyle
+#' @importFrom GenomeInfoDb seqlevelsStyle<-
 #' @examples
 #' files <- list.files(system.file("extdata/bam", package="DEScan2"),
 #'                     full.names=TRUE)
@@ -34,8 +34,9 @@ readBamAsBed <- function(file)
 #' @importFrom utils unzip
 #' @importFrom GenomicRanges GRanges
 #' @importFrom rtracklayer import.bed ranges strand
-#' @importFrom GenomeInfoDb seqlevelsStyle seqnames
-#' @importFrom S4Vectors mcols
+#' @importFrom Seqinfo seqnames
+#' @importFrom GenomeInfoDb seqlevelsStyle<-
+#' @importFrom S4Vectors mcols mcols<-
 #' @examples
 #' bedFile <- list.files(system.file("extdata/bed",package="DEScan2"),
 #'                         full.names=TRUE)
@@ -51,9 +52,9 @@ readBedFile <- function(filename, arePeaks=FALSE)
 
     bed <- rtracklayer::import.bed(con=file)
     if(!arePeaks) {
-        bed <- GenomicRanges::GRanges(seqnames=GenomeInfoDb::seqnames(bed),
-                                        ranges=rtracklayer::ranges(bed),
-                                        strand=rtracklayer::strand(bed))
+        bed <- GenomicRanges::GRanges(seqnames=Seqinfo::seqnames(bed),
+                                      ranges=rtracklayer::ranges(bed),
+                                      strand=rtracklayer::strand(bed))
     } else {
         cidx <- grep("name", colnames(S4Vectors::mcols(bed)))
         if(length(cidx) > 0 )
@@ -78,7 +79,7 @@ readBedFile <- function(filename, arePeaks=FALSE)
 #' @return a GRanges object with the seqinfo of the genome code
 #' @export
 #' @importFrom S4Vectors runValue
-#' @importFrom GenomeInfoDb seqnames Seqinfo seqinfo
+#' @importFrom Seqinfo seqnames Seqinfo seqinfo seqlevels<-
 #' @importFrom glue glue_collapse
 #' @examples
 #' library("GenomicRanges")
@@ -95,26 +96,24 @@ setGRGenomeInfo <- function(GRanges, genomeName=NULL, verbose=FALSE)
     if(length(genomeName)>1) stop("Please provide just one genome code!\n")
 
     uniqueSeqnames <- droplevels(unique(S4Vectors::runValue(
-                                    GenomeInfoDb::seqnames(GRanges))))
+                                    Seqinfo::seqnames(GRanges))))
 
     if(verbose) message("Get seqlengths from genome ", genomeName)
-    tryCatch({genomeInfo <- GenomeInfoDb::Seqinfo(genome=genomeName)},
+    tryCatch({genomeInfo <- Seqinfo::Seqinfo(genome=genomeName)},
         error=function(e)
         {
             stop("Unable to retrieve the genome ", genomeName, " returned: ", e)
         }
     )
 
-    seqNamesIdx <- which(GenomeInfoDb::seqnames(genomeInfo) %in% uniqueSeqnames)
+    seqNamesIdx <- which(Seqinfo::seqnames(genomeInfo) %in% uniqueSeqnames)
     if(length(seqNamesIdx) != 0)
     {
-        sqi <- genomeInfo[GenomeInfoDb::seqnames(genomeInfo)[seqNamesIdx]]
-        # sqi <- sqi[GenomeInfoDb::seqnames(sqi)[
-        #                                 order(GenomeInfoDb::seqnames(sqi))],]
-        GenomeInfoDb::seqlevels(GRanges) <-
-                                        GenomeInfoDb::seqlevelsInUse(GRanges)
-        GRanges <- GenomeInfoDb::sortSeqlevels(GRanges)
-        tryCatch({GenomeInfoDb::seqinfo(GRanges) <- sqi},
+        sqi <- genomeInfo[Seqinfo::seqnames(genomeInfo)[seqNamesIdx]]
+        # sqi <- sqi[Seqinfo::seqnames(sqi)[order(Seqinfo::seqnames(sqi))],]
+        Seqinfo::seqlevels(GRanges) <- Seqinfo::seqlevelsInUse(GRanges)
+        GRanges <- Seqinfo::sortSeqlevels(GRanges)
+        tryCatch({Seqinfo::seqinfo(GRanges) <- sqi},
                 warning=function(w)
                 {
                     warning(paste0("The genome ", genomeName,
@@ -136,8 +135,8 @@ setGRGenomeInfo <- function(GRanges, genomeName=NULL, verbose=FALSE)
             " in genome ", genomeName,
             " Maybe a problem of chromosome labels")
     }
-    tryCatch({GenomeInfoDb::seqnames(GRanges) <- droplevels(
-                                    GenomeInfoDb::seqnames(GRanges))},
+    tryCatch({Seqinfo::seqnames(GRanges) <-
+                  droplevels(Seqinfo::seqnames(GRanges))},
             warning=function(w)
             {
                 warning(paste0("The genome ", genomeName,
@@ -167,8 +166,8 @@ setGRGenomeInfo <- function(GRanges, genomeName=NULL, verbose=FALSE)
 #' @param verbose flag to obtain verbose output.
 #' @return a GRanges object.
 #' @export
-#' @importFrom GenomeInfoDb keepStandardChromosomes seqinfo Seqinfo seqnames
-#' keepSeqlevels
+#' @importFrom Seqinfo seqinfo Seqinfo seqnames seqlevels<-
+#' @importFrom GenomeInfoDb keepStandardChromosomes
 #' @importFrom GenomicRanges sort
 #' @examples
 #' files <- list.files(system.file("extdata/bam/", package="DEScan2"),
@@ -198,7 +197,7 @@ constructBedRanges <- function(filename,
                                                         pruning.mode="coarse")
     }
 
-    uniqueSeqnames <- droplevels(unique(GenomeInfoDb::seqnames(bedGRanges)))
+    uniqueSeqnames <- droplevels(unique(Seqinfo::seqnames(bedGRanges)))
 
     if( !is.null(genomeName) )
     {
@@ -210,9 +209,9 @@ constructBedRanges <- function(filename,
 
     # checking bed seqnames, useful in peak calling algorithm
     veclengths <- as.vector(
-                    GenomeInfoDb::seqlengths(
-                        GenomeInfoDb::seqinfo(bedGRanges)))
-    vecnames <- GenomeInfoDb::seqnames(GenomeInfoDb::seqinfo(bedGRanges))
+                    Seqinfo::seqlengths(
+                        Seqinfo::seqinfo(bedGRanges)))
+    vecnames <- Seqinfo::seqnames(Seqinfo::seqinfo(bedGRanges))
 
     if( (sum(is.na(veclengths)) > 0) || (length(vecnames) == 0 ))
     {
@@ -223,10 +222,10 @@ constructBedRanges <- function(filename,
                 "\nPlease provide a genomeName to setup the GRanges!")
         }
     } else if(length(uniqueSeqnames) <
-            length(GenomeInfoDb::seqnames(GenomeInfoDb::seqinfo(bedGRanges))))
+                  length(Seqinfo::seqnames(Seqinfo::seqinfo(bedGRanges))))
     {
         if(verbose) message("Keeping only necessary seqInfos")
-        bedGRanges <- GenomeInfoDb::keepSeqlevels(bedGRanges, uniqueSeqnames)
+        seqlevels(bedGRanges) <- uniqueSeqnames
     }
 
     bedGRanges <- GenomicRanges::sort(bedGRanges, ignore.strand=TRUE)
@@ -292,8 +291,8 @@ readFilesAsGRangesList <- function(filePath, fileType=c("bam", "bed", "bed.zip",
 #' @param force force overwriting.
 #' @param verbose verbose output flag.
 #' @importFrom rtracklayer export.bed
-#' @importFrom GenomeInfoDb sortSeqlevels seqnames
-#' @importFrom S4Vectors mcols
+#' @importFrom Seqinfo seqnames sortSeqlevels
+#' @importFrom S4Vectors mcols mcols<-
 #' @importFrom BiocGenerics start end
 #'
 #' @return none
@@ -333,13 +332,13 @@ saveGRangesAsBed <- function(GRanges, filepath=tempdir(), filename=tempfile(),
     }
 
 
-    GRanges <- GenomeInfoDb::sortSeqlevels(GRanges)
+    GRanges <- Seqinfo::sortSeqlevels(GRanges)
     GRanges <- sort(GRanges)
     if(length(unique(names(GRanges))) < length(GRanges))
     {
-        nn <- paste0(GenomeInfoDb::seqnames(GRanges), ":",
-                        BiocGenerics::start(GRanges), "-",
-                        BiocGenerics::end(GRanges))
+        nn <- paste0(Seqinfo::seqnames(GRanges), ":",
+                     BiocGenerics::start(GRanges), "-",
+                     BiocGenerics::end(GRanges))
         names(GRanges) <- nn
     }
 
@@ -387,7 +386,7 @@ saveGRangesAsBed <- function(GRanges, filepath=tempdir(), filename=tempfile(),
 #' @param row.names a logical value indicating whether the row names are to be
 #' written in the file, or a character vector indicating the row names
 #' (see \link[utils]{write.table}).
-#' @param sep the column separator character (default is \"\t\").
+#' @param sep the column separator character (default is \code{"\t"}).
 #'
 #' @importFrom utils write.table
 #'
@@ -490,11 +489,11 @@ RleListToRleMatrix <- function(RleList, dimnames=NULL)
 #' @importFrom GenomicRanges GRanges
 #' @importFrom IRanges IRanges
 #' @importFrom rtracklayer start
-#' @importFrom S4Vectors mcols
-#' @importFrom GenomeInfoDb seqlengths isCircular seqnames
+#' @importFrom S4Vectors mcols mcols<-
+#' @importFrom Seqinfo seqlengths isCircular seqnames
 #' @export
 #' @examples
-#' chrSeqInfo <- GenomeInfoDb::Seqinfo(genome="mm9")["chr1"]
+#' chrSeqInfo <- Seqinfo::Seqinfo(genome="mm9")["chr1"]
 #' starts=sample(seq_len(100), 10)
 #' widths=starts+10;
 #' mcolname <- "z-score";
@@ -507,15 +506,15 @@ createGranges <- function(chrSeqInfo, starts, widths,
     stopifnot(identical(length(starts), length(widths)))
 
     maxlengths <- starts+widths
-    slen <- as.numeric(GenomeInfoDb::seqlengths(chrSeqInfo))
-    iscirc <- as.logical(GenomeInfoDb::isCircular(chrSeqInfo))
+    slen <- as.numeric(Seqinfo::seqlengths(chrSeqInfo))
+    iscirc <- as.logical(Seqinfo::isCircular(chrSeqInfo))
     idxm <- which(maxlengths >= slen)
     if( (length(idxm) > 0) && (!iscirc) )
     {
 
         warning("GRanges object contains ", length(idxm), " out-of-bound range",
                 " located on sequence ",
-                GenomeInfoDb::seqnames(chrSeqInfo), ".",
+                Seqinfo::seqnames(chrSeqInfo), ".",
                 " A non-circular sequence!",
                 "\nTrimming out-of-bound range to the admitted seqlength."
                 )
@@ -523,7 +522,7 @@ createGranges <- function(chrSeqInfo, starts, widths,
     }
 
     gr <- GenomicRanges::GRanges(seqnames=as.character(
-                            GenomeInfoDb::seqnames(chrSeqInfo)),
+                            Seqinfo::seqnames(chrSeqInfo)),
                             ranges=IRanges::IRanges(start=starts, width=widths),
                             seqinfo=chrSeqInfo)
 
@@ -551,7 +550,8 @@ createGranges <- function(chrSeqInfo, starts, widths,
 #'
 #' @return a named list of GRanges, one for each chromosome.
 #'
-#' @importFrom GenomeInfoDb seqnames seqinfo seqlevels seqlevelsInUse
+#' @importFrom Seqinfo seqinfo seqinfo<- seqnames seqlevels seqlevels<-
+#'             seqlevelsInUse
 #' @importFrom GenomicRanges GRangesList
 #' @importFrom GenomicAlignments levels
 #' @importFrom S4Vectors runValue
@@ -570,15 +570,15 @@ cutGRangesPerChromosome <- function(GRanges)
     stopifnot(is(GRanges, "GRanges"))
 
     interestedChrs <- GenomicAlignments::levels(S4Vectors::runValue(
-                                            GenomeInfoDb::seqnames(GRanges)))
+                                            Seqinfo::seqnames(GRanges)))
 
     GRList <- lapply(interestedChrs, function(x)
     {
-        bgr <- GRanges[ GenomeInfoDb::seqnames(GRanges) == x ]
+        bgr <- GRanges[ Seqinfo::seqnames(GRanges) == x ]
         if(length(bgr) > 0)
         {
-            GenomeInfoDb::seqlevels(bgr) <- GenomeInfoDb::seqlevelsInUse(bgr)
-            GenomeInfoDb::seqinfo(bgr) <- GenomeInfoDb::seqinfo(GRanges)[x]
+            Seqinfo::seqlevels(bgr) <- Seqinfo::seqlevelsInUse(bgr)
+            Seqinfo::seqinfo(bgr) <- Seqinfo::seqinfo(GRanges)[x]
             return(bgr)
         }
     })

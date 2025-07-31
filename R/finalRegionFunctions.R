@@ -27,7 +27,7 @@
 #' n-peaks, k-carriers as mcols object.
 #' @export
 #' @importFrom GenomicRanges GRangesList
-#' @importFrom S4Vectors mcols
+#' @importFrom S4Vectors mcols mcols<-
 #' @importFrom BiocParallel bpparam bplapply
 #' @examples
 #' peak.path <- system.file("extdata/peaks/RData/peaksGRL_all_files.rds",
@@ -193,9 +193,9 @@ initMergedPeaksNames <- function(mergedGRanges)
 #' @return a GRanges of peaks overlapped and unique between samples.
 #' @export
 #'
-#' @importFrom S4Vectors mcols runValue
+#' @importFrom S4Vectors mcols mcols<- runValue
 #' @importFrom BiocGenerics start end
-#' @importFrom GenomeInfoDb seqlengths seqnames
+#' @importFrom Seqinfo seqlengths seqnames
 #' @importFrom ChIPpeakAnno findOverlapsOfPeaks
 #' @importFrom data.table rbindlist
 #' @importFrom GenomicRanges GRangesList
@@ -236,12 +236,12 @@ findOverlapsOverSamples <- function(samplePeaksGRangelist,
         }
         BiocGenerics::end(x) <- BiocGenerics::end(x) + extendRegions
         ## it must return just one chromosome
-        idxHigh <- which( BiocGenerics::end(x) > GenomeInfoDb::seqlengths(x) )
+        idxHigh <- which( BiocGenerics::end(x) > Seqinfo::seqlengths(x) )
         if(length(idxHigh) > 0) {
             warning("extendRegions of ", extendRegions,
                     " is too high for region(s) end ", idxHigh,
-                    " forcing these ends to ", GenomeInfoDb::seqlengths(x))
-            BiocGenerics::end(x)[idxHigh] <- GenomeInfoDb::seqlengths(x)
+                    " forcing these ends to ", Seqinfo::seqlengths(x))
+            BiocGenerics::end(x)[idxHigh] <- Seqinfo::seqlengths(x)
         }
 
         return(x)
@@ -275,7 +275,7 @@ findOverlapsOverSamples <- function(samplePeaksGRangelist,
                 message("No merged peaks found at sample ", i,
                         " and chromosome ",
                         as.character(S4Vectors::runValue(
-                            GenomeInfoDb::seqnames(grj))),
+                            Seqinfo::seqnames(grj))),
                         "\nNB: skipping this sample!")
                 foundedPeaks <- gri
                 next

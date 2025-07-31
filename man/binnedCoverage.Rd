@@ -35,9 +35,9 @@ chromosome, starting from a per base computed coverage.
 }
 \examples{
 ## dividing one chromosome in bins of 50 bp each
-seqinfo <- GenomeInfoDb::Seqinfo(genome="mm9")
+seqinfo <- Seqinfo::Seqinfo(genome="mm9")
 bins <- GenomicRanges::tileGenome(
-            seqlengths=GenomeInfoDb::seqlengths(seqinfo)[1],
+            seqlengths=Seqinfo::seqlengths(seqinfo)[1],
             tilewidth=50,
             cut.last.tile.in.chrom=TRUE)
 gr <- GenomicRanges::GRanges(seqnames = S4Vectors::Rle("chr1", 100),

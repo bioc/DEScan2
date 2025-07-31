@@ -40,7 +40,7 @@
 #' @export
 #'
 #' @importFrom GenomicRanges GRangesList
-#' @importFrom GenomeInfoDb seqinfo seqlengths
+#' @importFrom Seqinfo seqinfo seqlengths
 #' @importFrom BiocParallel bpparam bplapply
 #' @examples
 #' bam.files <- list.files(system.file("extdata/bam", package = "DEScan2"),
@@ -128,8 +128,8 @@ findPeaks <- function(files, filetype=c("bam", "bed"),
                                     maxChrRleWComp=maxCompRunWinRleList[[1]],
                                     maxCompWinWidth=maxCompWinWidth,
                                     verbose=verbose)
-            seqlength <- GenomeInfoDb::seqlengths(
-                                        GenomeInfoDb::seqinfo(chrGRanges))[[1]]
+            seqlength <- Seqinfo::seqlengths(
+                                        Seqinfo::seqinfo(chrGRanges))[[1]]
             Z <- computeZ(lambdaChrRleList=lambdaChrRleList,
                             runWinRleList=runWinRleList,
                             chrLength=seqlength,
@@ -140,7 +140,7 @@ findPeaks <- function(files, filetype=c("bam", "bed"),
                                     zthresh=zthresh,
                                     verbose=verbose)
             chrZRanges <- createGranges(
-                                chrSeqInfo=GenomeInfoDb::seqinfo(chrGRanges),
+                                chrSeqInfo=Seqinfo::seqinfo(chrGRanges),
                                 starts=as.numeric(rownames(Z)[newS[,1]]),
                                 widths=newS[,2]*binSize,
                                 mcolname="z-score",
@@ -389,7 +389,7 @@ computeLambdaOnChr <- function(chrGRanges,
 #' @importFrom GenomicRanges tileGenome coverage
 #' @importFrom IRanges RleList
 #' @importFrom GenomicAlignments summarizeOverlaps
-#' @importFrom GenomeInfoDb seqinfo seqnames
+#' @importFrom Seqinfo seqinfo seqnames
 #' @importFrom S4Vectors runValue
 #'
 #' @keywords internal
@@ -401,7 +401,7 @@ computeCoverageMovingWindowOnChr <- function(chrBedGRanges, minWinWidth=50,
     minWinWidth <- minWinWidth/binWidth
     maxWinWidth <- maxWinWidth/binWidth
 
-    lengths <- GenomeInfoDb::seqinfo(chrBedGRanges)
+    lengths <- Seqinfo::seqinfo(chrBedGRanges)
     ## dividing chromosome in bins of binWidth dimention each
     binnedChromosome <- GenomicRanges::tileGenome(seqlengths=lengths,
                                                     tilewidth=binWidth,
@@ -420,7 +420,7 @@ computeCoverageMovingWindowOnChr <- function(chrBedGRanges, minWinWidth=50,
     chrCoverage <- GenomicRanges::coverage(x=chrBedGRanges)
     ## computing coverage per each bin on chromosome
     if(verbose) message("Computing coverage on Chromosome ",
-                S4Vectors::runValue(GenomeInfoDb::seqnames(chrBedGRanges)),
+                S4Vectors::runValue(Seqinfo::seqnames(chrBedGRanges)),
                 " binned by ", binWidth, " bin dimension")
 
     chrCovRle <- binnedCovOnly(bins=binnedChromosome,
@@ -457,14 +457,14 @@ computeCoverageMovingWindowOnChr <- function(chrBedGRanges, minWinWidth=50,
 #' @return the bins GRanges with the mcolname attached
 #' @export
 #'
-#' @importFrom GenomeInfoDb seqlevels seqnames
-#' @importFrom S4Vectors split mcols
+#' @importFrom Seqinfo seqlevels seqnames
+#' @importFrom S4Vectors split mcols mcols<-
 #' @importFrom IRanges ranges Views viewSums viewMaxs viewMeans viewMins
 #' @examples
 #' ## dividing one chromosome in bins of 50 bp each
-#' seqinfo <- GenomeInfoDb::Seqinfo(genome="mm9")
+#' seqinfo <- Seqinfo::Seqinfo(genome="mm9")
 #' bins <- GenomicRanges::tileGenome(
-#'             seqlengths=GenomeInfoDb::seqlengths(seqinfo)[1],
+#'             seqlengths=Seqinfo::seqlengths(seqinfo)[1],
 #'             tilewidth=50,
 #'             cut.last.tile.in.chrom=TRUE)
 #' gr <- GenomicRanges::GRanges(seqnames = S4Vectors::Rle("chr1", 100),
@@ -484,10 +484,10 @@ binnedCoverage <- function(bins, numvar, mcolname,
     roundingMethod <- match.arg(roundingMethod)
     stopifnot(is(bins, "GRanges"))
     stopifnot(is(numvar, "RleList"))
-    stopifnot(identical(GenomeInfoDb::seqlevels(bins), names(numvar)))
+    stopifnot(identical(Seqinfo::seqlevels(bins), names(numvar)))
 
     binsChr <- S4Vectors::split(IRanges::ranges(bins),
-                                GenomeInfoDb::seqnames(bins))
+                                Seqinfo::seqnames(bins))
     binCovsR <- lapply(names(numvar), function(seqname)
     {
         views <- IRanges::Views(numvar[[seqname]], binsChr[[seqname]])
@@ -506,7 +506,7 @@ binnedCoverage <- function(bins, numvar, mcolname,
         return(binCovsR)
     })
 
-    new_mcol <- unsplit(binCovsR, as.factor(GenomeInfoDb::seqnames(bins)))
+    new_mcol <- unsplit(binCovsR, as.factor(Seqinfo::seqnames(bins)))
     S4Vectors::mcols(bins)[[mcolname]] <- new_mcol
 
     return(bins)

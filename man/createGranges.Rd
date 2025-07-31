@@ -24,7 +24,7 @@ a GRanges object.
 a simplified wrapper function to create a GRanges object.
 }
 \examples{
-chrSeqInfo <- GenomeInfoDb::Seqinfo(genome="mm9")["chr1"]
+chrSeqInfo <- Seqinfo::Seqinfo(genome="mm9")["chr1"]
 starts=sample(seq_len(100), 10)
 widths=starts+10;
 mcolname <- "z-score";

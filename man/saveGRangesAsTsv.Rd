@@ -31,7 +31,7 @@ row names, default is NA (see \link[utils]{write.table}).}
 written in the file, or a character vector indicating the row names
 (see \link[utils]{write.table}).}
 
-\item{sep}{the column separator character (default is \"\t\").}
+\item{sep}{the column separator character (default is \code{"\t"}).}
 
 \item{force}{force overwriting.}
 

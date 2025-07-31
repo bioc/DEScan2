@@ -96,6 +96,6 @@ peaks <- findPeaks(files=bam.files[1], filetype="bam",
                         save=FALSE,
                         onlyStdChrs=TRUE,
                         chr=NULL,
-                        verbose=FALSE, BPPARAM=BiocParallel::SerialParam())
+                        verbose=FALSE)
 head(peaks)
 }
