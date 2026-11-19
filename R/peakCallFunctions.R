@@ -296,7 +296,7 @@ get_disjoint_max_win <- function(z0, sigwin=20, nmax=Inf,
         st <- max(1, t - sigwin - maxwin + 1)
         ed <- min(t + w + sigwin - 1, nrow(z0))
         # message("st: ", st, " ed: ", ed, "\n")
-        z0[st:ed, ] <- -Inf
+        z0[seq.int(st, ed), ] <- -Inf
 
         if (nrow(s) >= nmax) break
     }

@@ -1,3 +1,8 @@
+DEScan2 v1.33.1
+- use seq.int() in get_disjoint_max_win() to resolve a BiocCheck false positive
+- compile with C++17 on Unix and Windows for compatibility with RcppArmadillo
+- use Authors@R as the sole source of maintainer information
+
 DEScan2 v1.29.1
 - updating extdata objects to the latest object versions
 

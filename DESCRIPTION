@@ -1,7 +1,7 @@
 Package: DEScan2
 Type: Package
 Title: Differential Enrichment Scan 2
-Version: 1.33.0
+Version: 1.33.1
 Date: 2025-07-31
 Authors@R: c(
     person("Dario", "Righelli", role=c("aut", "cre"), 
@@ -13,7 +13,6 @@ Authors@R: c(
     person("Lucia", "Peixoto", role="aut", email="lucia.peixoto@wsu.edu"),
     person("Davide", "Risso", role="aut", email="risso.davide@gmail.com>")
     )
-Maintainer: Dario Righelli <dario.righelli@gmail.com>
 Description: 
     Integrated peak and differential caller, specifically designed for
     broad epigenomic signals.
